@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import Products from './components/Products';
 import Customers from './components/Customers';
+import Orders from './components/Orders';
 import Login from './components/Login';
 import Register from './components/Register';
 
@@ -13,13 +14,46 @@ function App() {
   const [activeTab, setActiveTab] = useState('Dashboard');
 
   useEffect(() => {
+    // Check if user is logged in
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
     
+    console.log('Auth check - Token:', !!token, 'User:', !!user);
+    
     if (token && user) {
       setIsAuthenticated(true);
+      // Set active tab based on current path
+      const currentPath = window.location.pathname;
+      if (currentPath.includes('/products')) {
+        setActiveTab('Products');
+      } else if (currentPath.includes('/customers')) {
+        setActiveTab('Customers');
+      } else if (currentPath.includes('/orders')) {
+        setActiveTab('Orders');
+      } else {
+        setActiveTab('Dashboard');
+      }
     }
     setLoading(false);
+  }, []);
+
+  // Listen for route changes to update active tab
+  useEffect(() => {
+    const handleRouteChange = () => {
+      const currentPath = window.location.pathname;
+      if (currentPath.includes('/products')) {
+        setActiveTab('Products');
+      } else if (currentPath.includes('/customers')) {
+        setActiveTab('Customers');
+      } else if (currentPath.includes('/orders')) {
+        setActiveTab('Orders');
+      } else if (currentPath.includes('/dashboard')) {
+        setActiveTab('Dashboard');
+      }
+    };
+
+    window.addEventListener('popstate', handleRouteChange);
+    return () => window.removeEventListener('popstate', handleRouteChange);
   }, []);
 
   if (loading) {
@@ -46,6 +80,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
               <Route path="/customers" element={<Customers />} />
+              <Route path="/orders" element={<Orders />} />
               <Route path="/" element={<Navigate to="/dashboard" />} />
               <Route path="*" element={<Navigate to="/dashboard" />} />
             </Routes>
